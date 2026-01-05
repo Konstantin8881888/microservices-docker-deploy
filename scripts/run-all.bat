@@ -1,4 +1,5 @@
 @echo off
+call scripts/fix-encoding.bat
 echo ============================================
 echo ЗАПУСК MICROSERVICES В DOCKER
 echo ============================================

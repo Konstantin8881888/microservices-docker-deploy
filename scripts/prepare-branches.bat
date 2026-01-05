@@ -1,4 +1,5 @@
 @echo off
+call scripts/fix-encoding.bat
 echo ============================================
 echo ПОДГОТОВКА ВЕТОК ДЛЯ DOCKER-СБОРКИ
 echo ============================================
@@ -18,24 +19,24 @@ git pull origin feature2
 echo ✓ Notification Service готов
 
 echo.
-echo [3/5] Eureka Server - ветка master
+echo [3/5] Eureka Server - ветка feature
 cd ..\eureka-server
-git checkout master
-git pull origin master
+git checkout feature
+git pull origin feature
 echo ✓ Eureka Server готов
 
 echo.
-echo [4/5] Config Server - ветка master
+echo [4/5] Config Server - ветка feature
 cd ..\config-server
-git checkout master
-git pull origin master
+git checkout feature
+git pull origin feature
 echo ✓ Config Server готов
 
 echo.
-echo [5/5] API Gateway - ветка master
+echo [5/5] API Gateway - ветка feature
 cd ..\api-gateway
-git checkout master
-git pull origin master
+git checkout feature
+git pull origin feature
 echo ✓ API Gateway готов
 
 echo.
