@@ -2,7 +2,7 @@
 call scripts/fix-encoding.bat
 chcp 65001 > nul
 echo ============================================
-echo СБОРКА ВСЕХ МИКРОСЕРВИСОВ (ПРОПУСК ТЕСТОВ)
+echo СБОРКА ВСЕХ МИКРОСЕРВИСОВ
 echo ============================================
 
 echo.
@@ -52,17 +52,21 @@ echo ✓ Notification Service собран
 echo.
 echo [5/5] Сборка API Gateway...
 cd ..\api-gateway
-
-echo Удаляем проблемные тесты (временно)...
-del /q src\test\java\org\klimtsov\FallbackHandlerTest.java 2>nul
+echo Проверяем pom.xml...
+if not exist "pom.xml" (
+    echo ✗ Файл pom.xml не найден!
+    pause
+    exit /b 1
+)
 
 echo Запускаем сборку...
 call mvn clean package -DskipTests -Dmaven.test.skip=true -q
 if %ERRORLEVEL% NEQ 0 (
-    echo ⚠️ Первая сборка не удалась, пробуем без зависимостей...
-    call mvn clean compile -DskipTests -q
+    echo ⚠️ Сборка с -q не удалась, пробуем с подробным выводом...
+    call mvn clean package -DskipTests -Dmaven.test.skip=true
     if %ERRORLEVEL% NEQ 0 (
         echo ✗ Ошибка сборки API Gateway
+        echo Проверьте, что зависимость spring-boot-starter-webflux в pom.xml без scope test
         pause
         exit /b 1
     )
@@ -74,4 +78,6 @@ cd ..\docker-deploy
 echo ============================================
 echo ВСЕ МИКРОСЕРВИСЫ УСПЕШНО СОБРАНЫ!
 echo ============================================
+echo Проверяем JAR-файлы...
+call scripts\check-build.bat
 pause
