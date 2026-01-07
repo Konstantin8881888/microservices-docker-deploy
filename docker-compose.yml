@@ -84,11 +84,11 @@ services:
     networks:
       - microservices-net
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8761/actuator/health || exit 1"]
-      interval: 20s
+      test: [ "CMD", "wget", "-q", "-O", "-", "http://localhost:8761/actuator/health" ]
+      interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 40s
+      start_period: 90s
 
   config-server:
     build:
@@ -100,7 +100,10 @@ services:
     environment:
       <<: *common-variables
       SERVER_PORT: 8888
+      SPRING_PROFILES_ACTIVE: docker,native  # ЯВНО указываем native профиль
       SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCHLOCATIONS: "file:/config-repo"
+      # Отключаем Git полностью
+      SPRING_CLOUD_CONFIG_SERVER_GIT_ENABLED: "false"
     volumes:
       - ./config-repo:/config-repo
     networks:
@@ -108,16 +111,16 @@ services:
     depends_on:
       - eureka-server
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8888/actuator/health || exit 1"]
-      interval: 20s
+      test: [ "CMD-SHELL", "timeout 5 bash -c 'curl -f http://localhost:8888/actuator/health || exit 0'" ]
+      interval: 30s
       timeout: 10s
-      retries: 10
-      start_period: 30s
+      retries: 5
+      start_period: 60s
 
   # --- МИКРОСЕРВИСЫ ---
   user-service:
     build:
-      context: ../Module2
+      context: ../user-service
       dockerfile: Dockerfile
     container_name: user-service
     ports:

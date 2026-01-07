@@ -29,7 +29,7 @@ echo ✓ Config Server собран
 
 echo.
 echo [3/5] Сборка User Service...
-cd ..\Module2
+cd ..\user-service
 call mvn clean package -DskipTests -Dmaven.test.skip=true -q
 if %ERRORLEVEL% NEQ 0 (
     echo ✗ Ошибка сборки User Service

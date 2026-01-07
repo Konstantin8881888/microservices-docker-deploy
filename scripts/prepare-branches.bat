@@ -5,8 +5,8 @@ echo ПОДГОТОВКА ВЕТОК ДЛЯ DOCKER-СБОРКИ
 echo ============================================
 
 echo.
-echo [1/5] User Service (Module2) - ветка feature4
-cd ..\Module2
+echo [1/5] User Service (user-service) - ветка feature4
+cd ..\user-service
 git checkout feature4
 git pull origin feature4
 echo ✓ User Service готов

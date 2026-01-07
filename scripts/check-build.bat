@@ -31,7 +31,7 @@ if %ERRORLEVEL% EQU 0 (
 
 echo.
 echo [3] User Service:
-dir ..\Module2\target\*.jar > nul 2>&1
+dir ..\user-service\target\*.jar > nul 2>&1
 if %ERRORLEVEL% EQU 0 (
     echo ✓ Найден
 ) else (
