@@ -3,7 +3,7 @@ call scripts\fix-encoding.bat
 chcp 65001 > nul
 
 echo ============================================
-echo ФИНАЛЬНАЯ ПРОВЕРКА ЗАДАНИЯ
+echo ФИНАЛЬНАЯ ПРОВЕРКА
 echo ============================================
 echo Проверка всех паттернов в Docker-окружении
 echo.
@@ -95,17 +95,6 @@ echo Успешно: %passed_tests%
 echo Неудачно: %failed_tests%
 echo.
 
-echo ============================================
-echo СВОДКА ПО ПАТТЕРНАМ:
-echo ============================================
-echo.
-echo 1. Service Discovery: если Eureka работает - РАБОТАЕТ
-echo 2. External Configuration: если Config Server работает - РАБОТАЕТ
-echo 3. API Gateway: если Gateway работает - РАБОТАЕТ
-echo 4. Circuit Breaker: если Circuit Breaker настроен - РАБОТАЕТ
-echo 5. Взаимодействие сервисов: если пользователь создан и Kafka событие получено - РАБОТАЕТ
-echo.
-
 if %failed_tests% equ 0 (
     echo ============================================
     echo ВСЕ ПАТТЕРНЫ РАБОТАЮТ КОРРЕКТНО!
@@ -120,4 +109,3 @@ if %failed_tests% equ 0 (
 echo.
 echo Для остановки системы выполните: docker-compose down
 echo.
-pause

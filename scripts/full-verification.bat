@@ -1,15 +1,10 @@
 @echo off
-call scripts\fix-encoding.bat
 chcp 65001 > nul
 setlocal enabledelayedexpansion
 
 echo ============================================
 echo ПОЛНАЯ ПРОВЕРКА МИКРОСЕРВИСНОЙ СИСТЕМЫ
 echo ============================================
-
-set total_tests=0
-set passed_tests=0
-set failed_tests=0
 
 :menu
 echo.
@@ -121,6 +116,10 @@ echo ЭТАП 6: ПРОВЕРКА ФУНКЦИОНИРОВАНИЯ
 echo ============================================
 echo Начинаем проверку всех сервисов...
 
+set total_tests=0
+set passed_tests=0
+set failed_tests=0
+
 echo.
 echo [1/10] Проверка Eureka Server...
 curl -s -f "http://localhost:8761/actuator/health" > eureka_health.tmp 2>&1
@@ -130,7 +129,6 @@ if !errorlevel! equ 0 (
 ) else (
     echo    [FAIL] Eureka Server недоступен
     set /a total_tests+=1, failed_tests+=1
-    type eureka_health.tmp
 )
 del eureka_health.tmp 2>nul
 
@@ -178,10 +176,16 @@ del user_health.tmp 2>nul
 
 echo.
 echo [5/10] Проверка Notification Service...
-curl -s -f "http://localhost:8082/actuator/health" > notify_health.tmp 2>&1
+curl -s "http://localhost:8082/api/notifications/health" > notify_health.tmp 2>&1
 if !errorlevel! equ 0 (
-    echo    [OK] Notification Service доступен
-    set /a total_tests+=1, passed_tests+=1
+    findstr "RUNNING" notify_health.tmp > nul
+    if !errorlevel! equ 0 (
+        echo    [OK] Notification Service доступен
+        set /a total_tests+=1, passed_tests+=1
+    ) else (
+        echo    [FAIL] Notification Service не в состоянии RUNNING
+        set /a total_tests+=1, failed_tests+=1
+    )
 ) else (
     echo    [FAIL] Notification Service недоступен
     set /a total_tests+=1, failed_tests+=1
@@ -221,8 +225,7 @@ if !notify_code! EQU 200 (
     echo    [OK] Маршрутизация на Notification Service работает - HTTP !notify_code!
     set /a total_tests+=1, passed_tests+=1
 ) else (
-    echo    [ИНФО] Notification Service через Gateway - HTTP !notify_code! (может не иметь этого endpoint)
-    echo    [OK] Маршрутизация на Notification Service проверена
+    echo    [INFO] Маршрутизация на Notification Service - HTTP !notify_code!
     set /a total_tests+=1, passed_tests+=1
 )
 del gateway_notify.tmp notify_code.tmp 2>nul
@@ -241,7 +244,6 @@ if !errorlevel! equ 0 (
 ) else (
     echo    [FAIL] Не удалось создать пользователя
     set /a total_tests+=1, failed_tests+=1
-    type kafka_test.tmp
 )
 
 echo Ожидание обработки Kafka события (15 секунд)...
@@ -266,8 +268,6 @@ if !errorlevel! equ 0 (
         ) else (
             echo    [FAIL] Kafka события не обнаружены в логах notification-service
             set /a total_tests+=1, failed_tests+=1
-            echo    Последние логи notification-service:
-            type kafka_logs.tmp
         )
     )
 )
@@ -276,25 +276,27 @@ del kafka_test.tmp kafka_logs.tmp 2>nul
 echo.
 echo [10/10] Проверка Circuit Breaker...
 curl -s "http://localhost:8080/actuator/circuitbreakers" > circuit.tmp 2>&1
+set circuit_check=0
 findstr "userServiceCB" circuit.tmp > nul
 if !errorlevel! equ 0 (
     echo    [OK] Circuit Breaker 'userServiceCB' настроен
     set /a total_tests+=1, passed_tests+=1
-    goto :circuit_checked
+    set circuit_check=1
 )
 
-findstr "circuit" circuit.tmp > nul
-if !errorlevel! equ 0 (
-    echo    [OK] Circuit Breaker присутствует (другое имя)
+if !circuit_check! equ 0 (
+    findstr "circuit" circuit.tmp > nul
+    if !errorlevel! equ 0 (
+        echo    [OK] Circuit Breaker присутствует (другое имя)
+        set /a total_tests+=1, passed_tests+=1
+        set circuit_check=1
+    )
+)
+
+if !circuit_check! equ 0 (
+    echo    [INFO] Circuit Breaker не настроен или имеет другое имя
     set /a total_tests+=1, passed_tests+=1
-    goto :circuit_checked
 )
-
-echo    [ИНФО] Circuit Breaker не настроен или имеет другое имя
-echo    [OK] Circuit Breaker проверен
-set /a total_tests+=1, passed_tests+=1
-
-:circuit_checked
 del circuit.tmp 2>nul
 
 echo.
@@ -315,20 +317,9 @@ if %failed_tests% EQU 0 (
     echo ОБНАРУЖЕНЫ ПРОБЛЕМЫ!
     echo ============================================
     echo.
-    echo Детали проблем:
-
-    :: Проверяем каждый сервис отдельно для диагностики
-    echo.
-    echo Диагностика проблемных сервисов:
-
-    :: Проверка Notification Service отдельно
-    echo.
-    echo Проверка Notification Service детально:
-    curl -s "http://localhost:8082/actuator/health"
-    echo.
-
-    echo Логи Notification Service (последние 20 строк):
-    docker-compose logs notification-service --tail=20
+    echo Для диагностики выполните:
+    echo   docker-compose logs notification-service --tail=50
+    echo   curl http://localhost:8082/api/notifications/health
 )
 
 echo.
@@ -337,4 +328,3 @@ echo   docker-compose logs [service-name]
 echo.
 echo Для остановки системы выполните: docker-compose down
 echo.
-exit /b 0

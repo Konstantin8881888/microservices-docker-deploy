@@ -101,15 +101,3 @@ if %failed_tests% gtr 0 (
     echo.
     echo Все тесты прошли успешно!
 )
-
-echo.
-echo ============================================
-echo РУКОВОДСТВО ПО РУЧНОЙ ПРОВЕРКЕ:
-echo ============================================
-echo.
-echo 1. Проверьте Eureka Dashboard: http://localhost:8761
-echo 2. Проверьте Config Server: http://localhost:8888/user-service/default
-echo 3. Проверьте User Service: http://localhost:8081/api/users
-echo 4. Проверьте Notification Service: http://localhost:8082/api/notifications/health
-echo 5. Проверьте через Gateway: http://localhost:8080/api/users
-echo.

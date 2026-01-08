@@ -5,7 +5,7 @@ x-common-variables: &common-variables
   SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
 
 services:
-  # --- ИНФРАСТРУКТУРА ---
+  # ИНФРАСТРУКТУРА
   postgres:
     image: postgres:15-alpine
     container_name: postgres-users
@@ -68,7 +68,7 @@ services:
       retries: 10
       start_period: 60s
 
-  # --- CLOUD СЕРВИСЫ ---
+  # CLOUD СЕРВИСЫ
   eureka-server:
     build:
       context: ../eureka-server
@@ -116,7 +116,7 @@ services:
       retries: 5
       start_period: 40s
 
-  # --- МИКРОСЕРВИСЫ ---
+  # МИКРОСЕРВИСЫ
   user-service:
     build:
       context: ../user-service
@@ -177,7 +177,7 @@ services:
       retries: 10
       start_period: 120s
 
-  # --- API GATEWAY ---
+  # API GATEWAY
   api-gateway:
     build:
       context: ../api-gateway
