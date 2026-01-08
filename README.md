@@ -101,6 +101,7 @@
 - Установлен в mock режим (логирование без реальной отправки)
 - Для реальной отправки измените в config-repo/notification-service.yml:
 
+/
 
     notification:
       email:
