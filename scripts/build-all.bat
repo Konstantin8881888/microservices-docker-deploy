@@ -5,13 +5,20 @@ echo ============================================
 echo СБОРКА ВСЕХ МИКРОСЕРВИСОВ
 echo ============================================
 
+set CLEAN_COMMAND=clean
+if "%1"=="--fast" (
+    echo [РЕЖИМ] Быстрая сборка (без clean)
+    set CLEAN_COMMAND=
+) else (
+    echo [РЕЖИМ] Полная сборка (с clean)
+)
+
 echo.
 echo [1/5] Сборка Eureka Server...
 cd ..\eureka-server
-call mvn clean package -DskipTests -Dmaven.test.skip=true -q
+call mvn %CLEAN_COMMAND% package -DskipTests -Dmaven.test.skip=true -q
 if %ERRORLEVEL% NEQ 0 (
     echo ✗ Ошибка сборки Eureka Server
-    pause
     exit /b 1
 )
 echo ✓ Eureka Server собран
@@ -22,7 +29,6 @@ cd ..\config-server
 call mvn clean package -DskipTests -Dmaven.test.skip=true -q
 if %ERRORLEVEL% NEQ 0 (
     echo ✗ Ошибка сборки Config Server
-    pause
     exit /b 1
 )
 echo ✓ Config Server собран
@@ -33,7 +39,6 @@ cd ..\user-service
 call mvn clean package -DskipTests -Dmaven.test.skip=true -q
 if %ERRORLEVEL% NEQ 0 (
     echo ✗ Ошибка сборки User Service
-    pause
     exit /b 1
 )
 echo ✓ User Service собран
@@ -44,7 +49,6 @@ cd ..\notification-service
 call mvn clean package -DskipTests -Dmaven.test.skip=true -q
 if %ERRORLEVEL% NEQ 0 (
     echo ✗ Ошибка сборки Notification Service
-    pause
     exit /b 1
 )
 echo ✓ Notification Service собран
@@ -55,7 +59,6 @@ cd ..\api-gateway
 echo Проверяем pom.xml...
 if not exist "pom.xml" (
     echo ✗ Файл pom.xml не найден!
-    pause
     exit /b 1
 )
 
@@ -67,7 +70,6 @@ if %ERRORLEVEL% NEQ 0 (
     if %ERRORLEVEL% NEQ 0 (
         echo ✗ Ошибка сборки API Gateway
         echo Проверьте, что зависимость spring-boot-starter-webflux в pom.xml без scope test
-        pause
         exit /b 1
     )
 )
@@ -80,4 +82,3 @@ echo ВСЕ МИКРОСЕРВИСЫ УСПЕШНО СОБРАНЫ!
 echo ============================================
 echo Проверяем JAR-файлы...
 call scripts\check-build.bat
-pause

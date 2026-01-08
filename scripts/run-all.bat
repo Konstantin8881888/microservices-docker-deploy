@@ -46,4 +46,3 @@ echo ДЛЯ ОСТАНОВКИ:
 echo ============================================
 echo docker-compose down
 echo.
-pause

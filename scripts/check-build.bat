@@ -69,5 +69,3 @@ if %ERROR_COUNT% EQU 0 (
     echo ОБНАРУЖЕНО %ERROR_COUNT% ОШИБОК!
     echo ============================================
 )
-
-pause

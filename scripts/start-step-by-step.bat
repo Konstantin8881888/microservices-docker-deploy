@@ -69,5 +69,3 @@ echo ============================================
 echo docker-compose logs config-server
 echo docker-compose logs kafka
 echo docker-compose logs user-service
-
-pause
